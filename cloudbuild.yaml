@@ -1,0 +1,27 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/dh-gcp-infra-sandbox/bank-campaign-model', '.']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/dh-gcp-infra-sandbox/bank-campaign-model']
+
+- name: 'gcr.io/dh-gcp-infra-sandbox/bank-campaign-model'
+  entrypoint: 'bash'
+  args:
+   - '-c'
+   - |
+      python -m pytest
+
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', 'https://github.com/ksanal/mlops_project_vertex_ai.git']
+
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', 'my-notebook/bank_campaign_model_training.py', 'gs://asia-south1-mlops4-b9b9eede-bucket/dags']
+  
+
+images:
+- 'gcr.io/dh-gcp-infra-sandbox/bank-campaign-model'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
